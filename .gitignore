@@ -36,3 +36,5 @@ node_modules/
 # Build artifacts
 dist/
 build/
+# Allow Claude Code configuration
+!.claude/
