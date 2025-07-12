@@ -85,6 +85,34 @@ monitor-blocks.sh blocked    # Show only blocked requests
 monitor-blocks.sh allowed    # Show only allowed requests
 ```
 
+## Configuration
+
+### Git Configuration
+
+The container requires git user configuration to function properly. You have two options:
+
+#### Option 1: Environment Variables (Recommended)
+Create a `.env.host` file in the project root:
+```bash
+# .env.host (git-ignored)
+GIT_USER_NAME="Your Name"
+GIT_USER_EMAIL="your.email@example.com"
+```
+
+Then source it before starting the container:
+```bash
+source .env.host
+make start
+```
+
+#### Option 2: Container Environment
+Set environment variables when starting:
+```bash
+docker-compose run -e GIT_USER_NAME="Your Name" -e GIT_USER_EMAIL="your.email@example.com" claude-dev
+```
+
+If no configuration is provided, defaults will be used that remind you to configure properly.
+
 ## Architecture
 
 ### Core Components

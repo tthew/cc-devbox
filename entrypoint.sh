@@ -117,10 +117,22 @@ if ! grep -q ".local/bin" ~/.zshrc 2>/dev/null; then
     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 fi
 
-# Configure git if not already configured
+# Configure git user settings with environment variables
+# Use environment variables or sensible defaults that prompt user configuration
+GIT_USER_NAME="${GIT_USER_NAME:-Dev User (configure with GIT_USER_NAME env var)}"
+GIT_USER_EMAIL="${GIT_USER_EMAIL:-dev@localhost (configure with GIT_USER_EMAIL env var)}"
+
+# Configure git user if not already set
+if ! git config --global user.name >/dev/null 2>&1; then
+    git config --global user.name "$GIT_USER_NAME"
+fi
+
+if ! git config --global user.email >/dev/null 2>&1; then
+    git config --global user.email "$GIT_USER_EMAIL"
+fi
+
+# Configure other git settings if .gitconfig doesn't exist
 if [ ! -f ~/.gitconfig ]; then
-    git config --global user.name "Matt Richards"
-    git config --global user.email "m@tthew.berlin"
     git config --global init.defaultBranch main
     git config --global push.default simple
     git config --global pull.rebase false

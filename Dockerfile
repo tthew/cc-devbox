@@ -134,11 +134,8 @@ RUN mkdir -p .ssh \
     && cat .ssh/id_rsa.pub >> .ssh/authorized_keys \
     && chmod 600 .ssh/authorized_keys
 
-# Configure git with direct .gitconfig creation
-RUN echo '[user]' > ~/.gitconfig \
-    && echo '    name = Matt Richards' >> ~/.gitconfig \
-    && echo '    email = m@tthew.berlin' >> ~/.gitconfig \
-    && echo '[init]' >> ~/.gitconfig \
+# Configure git with basic settings (user config handled by entrypoint)
+RUN echo '[init]' > ~/.gitconfig \
     && echo '    defaultBranch = main' >> ~/.gitconfig \
     && echo '[push]' >> ~/.gitconfig \
     && echo '    default = simple' >> ~/.gitconfig \

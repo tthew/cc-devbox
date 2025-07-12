@@ -3,6 +3,12 @@
 
 .PHONY: help build start stop restart logs shell claude status clean first-run rebuild
 
+# Load environment variables if .env.host exists
+ifneq (,$(wildcard ./.env.host))
+    include .env.host
+    export
+endif
+
 # Default target
 help:
 	@echo "Claude Code Development Environment"
