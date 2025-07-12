@@ -1,0 +1,29 @@
+# Minimal ZSH config for Claude Code
+autoload -U compinit && compinit
+autoload -U colors && colors
+
+# Essential aliases with --model sonnet
+alias claude="echo '🤖 Launching Claude Code...' && claude --dangerously-skip-permissions --model sonnet"
+alias claude-dev="echo '🤖 Launching Claude Code in project...' && claude --dangerously-skip-permissions --model sonnet --project-dir /workspace"
+alias whitelist="/usr/local/bin/manage-whitelist.sh"
+alias ll="ls -alF --color=auto"
+
+# Help function
+help() { 
+    if [ -f ~/.welcome.sh ]; then
+        source ~/.welcome.sh
+    else
+        echo "Available commands: claude, whitelist list, ll"
+    fi
+}
+
+# Show welcome on SSH login (once per session)
+if [[ -n "$SSH_CONNECTION" ]]; then
+    if [[ ! -f /tmp/.$USER-welcome-shown && -f ~/.welcome.sh ]]; then
+        source ~/.welcome.sh
+        touch /tmp/.$USER-welcome-shown
+    fi
+fi
+
+# Navigate to workspace
+cd /workspace 2>/dev/null || true
