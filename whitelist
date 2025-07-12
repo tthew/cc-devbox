@@ -1,0 +1,120 @@
+#!/bin/bash
+
+# Simple Whitelist Management Script for DNS filtering
+# Manages domain whitelist using dnsmasq
+
+WHITELIST_FILE="/workspace/.claude/whitelist"
+DNSMASQ_CONFIG="/etc/dnsmasq.d/whitelist.conf"
+
+# Function to add a domain to the whitelist
+add_domain() {
+    local domain="$1"
+    
+    if [ -z "$domain" ]; then
+        echo "Usage: whitelist add <domain>"
+        exit 1
+    fi
+    
+    echo "Adding domain: $domain"
+    
+    # Create whitelist file if it doesn't exist
+    touch "$WHITELIST_FILE" 2>/dev/null || true
+    
+    # Check if domain already exists
+    if grep -q "^$domain$" "$WHITELIST_FILE" 2>/dev/null; then
+        echo "Domain $domain already in whitelist"
+        return 0
+    fi
+    
+    # Add domain to whitelist file
+    echo "$domain" >> "$WHITELIST_FILE"
+    
+    # Add DNS server entry for this domain
+    echo "server=/$domain/8.8.8.8" >> "$DNSMASQ_CONFIG"
+    
+    # Restart dnsmasq
+    pkill -HUP dnsmasq 2>/dev/null || true
+    
+    echo "Domain $domain added successfully"
+}
+
+# Function to remove a domain from the whitelist
+remove_domain() {
+    local domain="$1"
+    
+    if [ -z "$domain" ]; then
+        echo "Usage: whitelist remove <domain>"
+        exit 1
+    fi
+    
+    echo "Removing domain: $domain"
+    
+    if [ ! -f "$WHITELIST_FILE" ]; then
+        echo "Whitelist file does not exist"
+        return 1
+    fi
+    
+    # Remove domain from whitelist file
+    grep -v "^$domain$" "$WHITELIST_FILE" > "$WHITELIST_FILE.tmp" 2>/dev/null || true
+    mv "$WHITELIST_FILE.tmp" "$WHITELIST_FILE" 2>/dev/null || true
+    
+    # Remove DNS server entry
+    grep -v "server=/$domain/" "$DNSMASQ_CONFIG" > "$DNSMASQ_CONFIG.tmp" 2>/dev/null || true
+    mv "$DNSMASQ_CONFIG.tmp" "$DNSMASQ_CONFIG" 2>/dev/null || true
+    
+    # Restart dnsmasq
+    pkill -HUP dnsmasq 2>/dev/null || true
+    
+    echo "Domain $domain removed successfully"
+}
+
+# Function to list all whitelisted domains
+list_domains() {
+    echo "Currently whitelisted domains:"
+    if [ -f "$WHITELIST_FILE" ]; then
+        cat "$WHITELIST_FILE" 2>/dev/null | sort | while read -r domain; do
+            [ -n "$domain" ] && echo "  - $domain"
+        done
+    else
+        echo "  No domains whitelisted yet"
+    fi
+}
+
+# Function to show help
+show_help() {
+    echo "Simple Whitelist Management Script"
+    echo ""
+    echo "Usage: whitelist <command> [arguments]"
+    echo ""
+    echo "Commands:"
+    echo "  add <domain>     Add a domain to the whitelist"
+    echo "  remove <domain>  Remove a domain from the whitelist"
+    echo "  list             List all whitelisted domains"
+    echo "  help             Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  whitelist add example.com"
+    echo "  whitelist remove example.com"
+    echo "  whitelist list"
+}
+
+# Main script logic
+case "$1" in
+    "add")
+        add_domain "$2"
+        ;;
+    "remove")
+        remove_domain "$2"
+        ;;
+    "list")
+        list_domains
+        ;;
+    "help"|"")
+        show_help
+        ;;
+    *)
+        echo "Unknown command: $1"
+        show_help
+        exit 1
+        ;;
+esac
