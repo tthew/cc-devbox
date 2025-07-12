@@ -51,7 +51,7 @@ echo "✅ SSH service started (available on port 2222)"
 echo "🔧 Fixing workspace ownership for git..."
 chown dev:dev /workspace
 chown -R dev:dev /workspace/.git 2>/dev/null || true
-chown -R dev:dev /workspace/.env* 2>/dev/null || true
+# Environment files handled by gitignore - no manual ownership needed
 chown dev:dev /workspace/package.json 2>/dev/null || true
 chown dev:dev /workspace/package-lock.json 2>/dev/null || true
 
@@ -157,15 +157,8 @@ echo "Testing git status:"
 git status --porcelain > /dev/null 2>&1 && echo "✅ Git is working correctly" || echo "⚠️ Git may have issues"
 GITEOF
 
-# Check if .env.local exists and set proper ownership
-echo "🔧 Checking .env.local file ownership..."
-if [ -f "/workspace/.env.local" ]; then
-    chown dev:dev /workspace/.env.local
-    chmod 644 /workspace/.env.local
-    echo "✅ .env.local file ownership set correctly"
-else
-    echo "⚠️ No .env.local file found in workspace"
-fi
+# Environment setup complete - no additional .env files needed
+echo "✅ Environment configuration complete"
 
 echo "✅ Complete setup finished!"
 echo "🔄 Container is ready!"

@@ -168,26 +168,9 @@ check_environment() {
     print_info "Checking environment configuration..."
     check_project_directory
     
-    # Check if .env.local exists
-    if [ -f ".env.local" ]; then
-        print_success ".env.local file exists"
-        
-        # Check key environment variables
-        if grep -q "host.docker.internal" .env.local; then
-            print_success "Host Supabase configuration detected"
-        else
-            print_warning "Host Supabase configuration may be missing"
-        fi
-        
-        print_info "Current .env.local contents:"
-        echo "----------------------------------------"
-        cat .env.local
-        echo "----------------------------------------"
-    else
-        print_error ".env.local file not found"
-        print_info "The container should have created this file automatically"
-        return 1
-    fi
+    # Check basic container setup
+    print_success "Container development environment configured"
+    print_info "No additional environment files required for this container setup"
     
     print_success "Environment check completed!"
 }

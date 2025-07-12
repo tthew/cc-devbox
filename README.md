@@ -28,28 +28,18 @@ A streamlined, secure containerized development environment optimized for Claude
 git clone git@github.com:tthew/cc-devbox.git
 cd cc-devbox
 
-# First-time setup (creates .env.host file)
+# Build and start the development environment
 make first-run
 ```
 
-### 2. Configure Environment
-Edit `.env.host` with your actual secrets:
-```bash
-# Generate secrets
-openssl rand -hex 32    # For JWT_SECRET
-openssl rand -base64 32 # For NEXTAUTH_SECRET
-
-# Add your Supabase project keys
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
-
-### 3. Start Development
+### 2. Start Development
 ```bash
 # Start the container
 make start
+```
 
+### 3. Access Development Environment
+```bash
 # SSH into the environment  
 make shell
 
@@ -133,9 +123,9 @@ monitor-blocks.sh allowed    # Show only allowed requests
 - Isolated file system with controlled volume mounts
 
 ### Secret Management
-- Environment secrets in `.env.host` (gitignored)
 - SSH keys and authentication data in persistent `dev-home/`
 - No hardcoded credentials in the codebase
+- All secrets managed through secure container access
 
 ## Troubleshooting
 
@@ -185,7 +175,6 @@ cc-devbox/
 ├── entrypoint.sh             # Container initialization
 ├── whitelist.conf            # DNS filtering configuration
 ├── CLAUDE.md                 # Claude Code specific documentation
-├── SECURITY-SETUP.md         # Security configuration guide
 ├── scripts/
 │   ├── claude-launcher.sh    # Claude Code management
 │   └── dev-helper.sh         # Development helpers

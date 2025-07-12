@@ -17,9 +17,9 @@ This is a Docker-based development environment for Claude Code with DNS filterin
 - `make clean` - Clean up containers and volumes
 
 ### Environment Setup
-- `make first-run` - Complete first-time setup (creates .env.host, starts container)
-- `make check-env` - Validate environment variables
+- `make first-run` - Complete first-time setup (builds and starts container)
 - `make rebuild` - Full rebuild (clean build with --no-cache)
+- `make clean` - Clean up containers and volumes
 
 ### Inside the Container
 Once you SSH into the container (`make shell`), use these commands:
@@ -52,17 +52,16 @@ This is a secure, containerized development environment that provides:
 - `dev-home/` - Persistent user configuration, Claude Code sessions, SSH keys
 
 ### Environment Requirements
-- **Prerequisites**: .env.host file with required environment variables
-- **Required Variables**: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL, DIRECT_URL, JWT_SECRET, NEXTAUTH_SECRET, NEXTAUTH_URL
-- **Secret Generation**: Use `openssl rand -hex 32` for JWT_SECRET, `openssl rand -base64 32` for NEXTAUTH_SECRET
+- **Prerequisites**: Docker and Docker Compose installed
+- **System Requirements**: Sufficient memory allocation (8GB+ recommended)
+- **Port Availability**: SSH port 2222 and web ports 3000-3001
 
 ### Development Workflow
-1. Run `make first-run` for initial setup (creates .env.host, requires manual secret configuration)
-2. Edit .env.host with actual secrets and Supabase configuration
-3. Run `make start` to launch the container
-4. Use `make shell` to access the development environment
-5. Run `claude` inside the container to launch Claude Code
-6. Use `whitelist add domain.com` to allow access to new domains as needed
+1. Run `make first-run` for initial setup (builds and starts container)
+2. Use `make shell` to access the development environment
+3. Run `claude` inside the container to launch Claude Code
+4. Use `whitelist add domain.com` to allow access to new domains as needed
+5. Use `make stop` to stop the environment when done
 
 ### Security Architecture
 - **Network Isolation**: Container runs with DNS-based domain filtering
