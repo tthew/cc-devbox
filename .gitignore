@@ -36,5 +36,9 @@ node_modules/
 # Build artifacts
 dist/
 build/
+
+# Persistent development environment data
+dev-home/
+
 # Allow Claude Code configuration
 !.claude/
