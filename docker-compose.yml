@@ -1,0 +1,79 @@
+services:
+  claude-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # ARM64 optimizations for M4 Pro
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+      cache_from:
+        - life-in-hand-dev:latest
+    container_name: life-in-hand-claude-dev
+    hostname: claude-dev
+    # Resource limits optimized for M4 Pro (24GB RAM, 12 cores)
+    deploy:
+      resources:
+        limits:
+          cpus: '8.0'  # Use 8 cores for optimal performance
+          memory: 12G   # Allocate 12GB for development container
+        reservations:
+          cpus: '2.0'   # Reserve minimum 2 cores
+          memory: 4G    # Reserve minimum 4GB
+    # Add security capabilities for firewall management (Claude Code pattßern)
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      # Mount the entire Development directory with delegated consistency for better write performance
+      - /Users/tthew/Development:/workspace:delegated
+      # Complete home directory persistence for all configs and authentication
+      - /Users/tthew/Development/cc-devbox/dev-home:/home/dev:delegated
+      # Performance optimizations: tmpfs for temporary files
+    tmpfs:
+      - /tmp:noexec,nosuid,size=2g
+      - /var/tmp:noexec,nosuid,size=1g
+      - /workspace/logs:noexec,nosuid,size=500m
+    ports:
+      # SSH access
+      - "2222:22"
+      # Next.js development server
+      - "3000:3000"
+      # Next.js build server (if needed)
+      - "3001:3001"
+    environment:
+      # M4 Pro Performance Optimizations
+      - NODE_OPTIONS=--max-old-space-size=8192 --experimental-wasm-modules
+      - UV_THREADPOOL_SIZE=16
+      - NPM_CONFIG_CACHE=/workspace/.npm-cache
+      - PNPM_HOME=/workspace/.pnpm
+      # Enable ARM64 optimizations
+      - DOCKER_BUILDKIT=1
+      - BUILDKIT_PROGRESS=plain
+    networks:
+      - claude-dev-network
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Optimized health check for faster startup
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    # Shared memory for improved performance
+    shm_size: 2gb
+    # Optimize ulimits for development
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
+
+networks:
+  claude-dev-network:
+    driver: bridge
