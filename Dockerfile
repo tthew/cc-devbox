@@ -67,6 +67,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     jq \
     zsh \
     fzf \
+    build-essential \
     # Network tools
     dnsutils \
     iproute2 \
@@ -87,7 +88,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/* /var/tmp/*
 
 # Install global npm packages directly in runtime stage
-RUN npm install -g npm@latest pnpm@latest tsx@latest \
+RUN npm install -g npm@latest pnpm@latest tsx@latest deno\
     && npm cache clean --force
 
 # Install AWS CLI via pip3 (simpler and more reliable than binary installer)
@@ -265,9 +266,11 @@ COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY whitelist.conf /etc/dnsmasq.d/whitelist.conf
 COPY whitelist /usr/local/bin/whitelist
 COPY manage-whitelist.sh /usr/local/bin/manage-whitelist.sh
+COPY monitor-blocks.sh /usr/local/bin/monitor-blocks.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/whitelist && \
-    chmod +x /usr/local/bin/manage-whitelist.sh
+    chmod +x /usr/local/bin/manage-whitelist.sh && \
+    chmod +x /usr/local/bin/monitor-blocks.sh
 
 # Expose ports
 EXPOSE 22 3000 3001

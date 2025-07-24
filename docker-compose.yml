@@ -7,9 +7,9 @@ services:
       args:
         BUILDKIT_INLINE_CACHE: 1
       cache_from:
-        - life-in-hand-dev:latest
-    container_name: life-in-hand-claude-dev
-    hostname: claude-dev
+        - cc-devbox:latest
+    container_name: cc-devbox
+    hostname: cc-devbox
     # Resource limits optimized for M4 Pro (24GB RAM, 12 cores)
     deploy:
       resources:
@@ -17,7 +17,7 @@ services:
           cpus: '8.0'  # Use 8 cores for optimal performance
           memory: 12G   # Allocate 12GB for development container
         reservations:
-          cpus: '2.0'   # Reserve minimum 2 cores
+          cpus: '8.0'   # Reserve minimum 2 cores
           memory: 4G    # Reserve minimum 4GB
     # Add security capabilities for firewall management (Claude Code pattßern)
     cap_add:
@@ -50,7 +50,7 @@ services:
       - DOCKER_BUILDKIT=1
       - BUILDKIT_PROGRESS=plain
     networks:
-      - claude-dev-network
+      - cc-devbox-network
     stdin_open: true
     tty: true
     restart: unless-stopped
@@ -75,5 +75,5 @@ services:
         hard: -1
 
 networks:
-  claude-dev-network:
+  cc-devbox-network:
     driver: bridge

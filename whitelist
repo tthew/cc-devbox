@@ -1,10 +1,65 @@
 #!/bin/bash
 
-# Simple Whitelist Management Script for DNS filtering
-# Manages domain whitelist using dnsmasq
+# Advanced Whitelist Management Script for DNS filtering
+# Ensures dnsmasq and whitelist are always synchronized
 
 WHITELIST_FILE="/workspace/.claude/whitelist"
 DNSMASQ_CONFIG="/etc/dnsmasq.d/whitelist.conf"
+
+# Function to rebuild the entire dnsmasq configuration
+rebuild_dnsmasq_config() {
+    echo "Rebuilding dnsmasq configuration..."
+    
+    # Create the base configuration
+    cat > "$DNSMASQ_CONFIG" << 'EOF'
+# Minimal DNS whitelist configuration for dnsmasq
+# Basic configuration
+listen-address=127.0.0.1
+port=53
+no-dhcp-interface=
+cache-size=1000
+
+# Block all domains by default (IPv4 and IPv6)
+address=/#/127.0.0.1
+address=/#/::1
+
+# Essential development domains (always included)
+server=/playwright.dev/8.8.8.8
+server=/cdn.playwright.dev/8.8.8.8
+server=/playwright.download.prss.microsoft.com/8.8.8.8
+server=/npmjs.org/8.8.8.8
+server=/registry.npmjs.org/8.8.8.8
+server=/nodejs.org/8.8.8.8
+server=/supabase.com/8.8.8.8
+
+# Allow localhost 
+server=/localhost/
+
+# User-whitelisted domains:
+EOF
+
+    # Add all domains from the whitelist file
+    if [ -f "$WHITELIST_FILE" ]; then
+        while read -r domain; do
+            if [ ! -z "$domain" ] && [ "$domain" != "" ]; then
+                echo "server=/$domain/8.8.8.8" >> "$DNSMASQ_CONFIG"
+            fi
+        done < "$WHITELIST_FILE"
+    fi
+    
+    # Restart dnsmasq to apply changes
+    restart_dnsmasq
+}
+
+# Function to restart dnsmasq properly
+restart_dnsmasq() {
+    echo "Restarting dnsmasq..."
+    pkill dnsmasq 2>/dev/null || true
+    sleep 1
+    dnsmasq --conf-file=/etc/dnsmasq.conf >/dev/null 2>&1 &
+    sleep 2
+    echo "dnsmasq restarted"
+}
 
 # Function to add a domain to the whitelist
 add_domain() {
@@ -29,11 +84,8 @@ add_domain() {
     # Add domain to whitelist file
     echo "$domain" >> "$WHITELIST_FILE"
     
-    # Add DNS server entry for this domain
-    echo "server=/$domain/8.8.8.8" >> "$DNSMASQ_CONFIG"
-    
-    # Restart dnsmasq
-    pkill -HUP dnsmasq 2>/dev/null || true
+    # Rebuild entire dnsmasq config to ensure sync
+    rebuild_dnsmasq_config
     
     echo "Domain $domain added successfully"
 }
@@ -58,12 +110,8 @@ remove_domain() {
     grep -v "^$domain$" "$WHITELIST_FILE" > "$WHITELIST_FILE.tmp" 2>/dev/null || true
     mv "$WHITELIST_FILE.tmp" "$WHITELIST_FILE" 2>/dev/null || true
     
-    # Remove DNS server entry
-    grep -v "server=/$domain/" "$DNSMASQ_CONFIG" > "$DNSMASQ_CONFIG.tmp" 2>/dev/null || true
-    mv "$DNSMASQ_CONFIG.tmp" "$DNSMASQ_CONFIG" 2>/dev/null || true
-    
-    # Restart dnsmasq
-    pkill -HUP dnsmasq 2>/dev/null || true
+    # Rebuild entire dnsmasq config to ensure sync
+    rebuild_dnsmasq_config
     
     echo "Domain $domain removed successfully"
 }
@@ -80,9 +128,16 @@ list_domains() {
     fi
 }
 
+# Function to sync whitelist with dnsmasq (force rebuild)
+sync_whitelist() {
+    echo "Synchronizing whitelist with dnsmasq configuration..."
+    rebuild_dnsmasq_config
+    echo "Synchronization complete"
+}
+
 # Function to show help
 show_help() {
-    echo "Simple Whitelist Management Script"
+    echo "Advanced Whitelist Management Script"
     echo ""
     echo "Usage: whitelist <command> [arguments]"
     echo ""
@@ -90,12 +145,14 @@ show_help() {
     echo "  add <domain>     Add a domain to the whitelist"
     echo "  remove <domain>  Remove a domain from the whitelist"
     echo "  list             List all whitelisted domains"
+    echo "  sync             Force synchronization of whitelist and dnsmasq"
     echo "  help             Show this help message"
     echo ""
     echo "Examples:"
     echo "  whitelist add example.com"
     echo "  whitelist remove example.com"
     echo "  whitelist list"
+    echo "  whitelist sync"
 }
 
 # Main script logic
@@ -108,6 +165,9 @@ case "$1" in
         ;;
     "list")
         list_domains
+        ;;
+    "sync")
+        sync_whitelist
         ;;
     "help"|"")
         show_help

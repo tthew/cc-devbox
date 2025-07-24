@@ -103,6 +103,11 @@ if ! command -v claude >/dev/null 2>&1; then
     npm install -g @anthropic-ai/claude-code --no-audit --no-fund
 fi
 
+if ! command -v claude-flow >/dev/null 2>&1; then
+    echo "Installing Claude Flow Alpha..."
+    npm install -g claude-flow@alpha
+fi
+
 # Install uv if not already installed
 if ! command -v uv >/dev/null 2>&1; then
     echo "Installing uv Python package manager..."

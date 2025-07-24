@@ -40,13 +40,13 @@ show_blocked() {
 show_allowed() {
     echo -e "${GREEN}✅ Recently Allowed Requests:${NC}"
     if [ -f "$LOG_FILE" ]; then
-        grep -E "(cached.*is [0-9]|forwarded.*to [0-9])" "$LOG_FILE" | tail -10 | while read line; do
+        grep -E "(reply.*is [0-9]|cached.*is [0-9])" "$LOG_FILE" | tail -10 | while read line; do
             if echo "$line" | grep -q "cached"; then
                 domain=$(echo "$line" | sed 's/.*cached \([^ ]*\) is.*/\1/')
-                ip=$(echo "$line" | sed 's/.*is \([0-9][^ ]*\).*/\1/')
+                ip=$(echo "$line" | sed 's/.*is \([0-9a-f.:][^ ]*\).*/\1/')
             else
-                domain=$(echo "$line" | sed 's/.*forwarded \([^ ]*\) to.*/\1/')
-                ip=$(echo "$line" | sed 's/.*to \([0-9][^ ]*\).*/\1/')
+                domain=$(echo "$line" | sed 's/.*reply \([^ ]*\) is.*/\1/')
+                ip=$(echo "$line" | sed 's/.*is \([0-9a-f.:][^ ]*\).*/\1/')
             fi
             timestamp=$(echo "$line" | awk '{print $1, $2}')
             echo -e "  ${GREEN}✅${NC} $timestamp - $domain → $ip"
@@ -66,13 +66,13 @@ monitor_realtime() {
                 domain=$(echo "$line" | sed 's/.*config \([^ ]*\) is 127.0.0.1.*/\1/')
                 timestamp=$(echo "$line" | awk '{print $1, $2}')
                 echo -e "${RED}❌ BLOCKED${NC} $timestamp - $domain"
-            elif echo "$line" | grep -qE "(cached.*is [0-9]|forwarded.*to [0-9])"; then
+            elif echo "$line" | grep -qE "(reply.*is [0-9]|cached.*is [0-9])"; then
                 if echo "$line" | grep -q "cached"; then
                     domain=$(echo "$line" | sed 's/.*cached \([^ ]*\) is.*/\1/')
-                    ip=$(echo "$line" | sed 's/.*is \([0-9][^ ]*\).*/\1/')
+                    ip=$(echo "$line" | sed 's/.*is \([0-9a-f.:][^ ]*\).*/\1/')
                 else
-                    domain=$(echo "$line" | sed 's/.*forwarded \([^ ]*\) to.*/\1/')
-                    ip=$(echo "$line" | sed 's/.*to \([0-9][^ ]*\).*/\1/')
+                    domain=$(echo "$line" | sed 's/.*reply \([^ ]*\) is.*/\1/')
+                    ip=$(echo "$line" | sed 's/.*is \([0-9a-f.:][^ ]*\).*/\1/')
                 fi
                 timestamp=$(echo "$line" | awk '{print $1, $2}')
                 echo -e "${GREEN}✅ ALLOWED${NC} $timestamp - $domain → $ip"
@@ -89,7 +89,7 @@ show_stats() {
     if [ -f "$LOG_FILE" ]; then
         local total_queries=$(grep "query\[A\]" "$LOG_FILE" | wc -l)
         local blocked_count=$(grep "config.*is 127.0.0.1" "$LOG_FILE" | wc -l)
-        local allowed_count=$(grep -E "(cached.*is [0-9]|forwarded.*to [0-9])" "$LOG_FILE" | wc -l)
+        local allowed_count=$(grep -E "(reply.*is [0-9]|cached.*is [0-9])" "$LOG_FILE" | wc -l)
         
         echo "  Total DNS queries: $total_queries"
         echo -e "  ${RED}Blocked requests: $blocked_count${NC}"

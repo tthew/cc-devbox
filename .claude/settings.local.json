@@ -30,7 +30,15 @@
       "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter 'git rm -rf --cached --ignore-unmatch dev-home/' --prune-empty --tag-name-filter cat -- --all)",
       "Bash(git pull:*)",
       "Bash(cat:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(curl:*)",
+      "Bash(/dev/null)",
+      "Bash(timeout:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git clone:*)",
+      "WebFetch(domain:ai.google.dev)",
+      "WebFetch(domain:makersuite.google.com)",
+      "WebFetch(domain:aistudio.google.com)"
     ],
     "deny": []
   }
