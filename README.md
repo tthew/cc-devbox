@@ -228,4 +228,4 @@ cc-devbox/
 
 ## License
 
-This project is designed for development use and includes security features for safe coding environments.
+[MIT](./LICENSE)
