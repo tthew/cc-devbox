@@ -1,4 +1,11 @@
-# Claude Code Development Environment
+<pre>
+ ████████╗████████╗██╗  ██╗███████╗██╗    ██╗    ██████╗ ███████╗██╗   ██╗
+ ╚══██╔══╝╚══██╔══╝██║  ██║██╔════╝██║    ██║    ██╔══██╗██╔════╝██║   ██║
+    ██║      ██║   ███████║█████╗  ██║ █╗ ██║    ██║  ██║█████╗  ██║   ██║
+    ██║      ██║   ██╔══██║██╔══╝  ██║███╗██║    ██║  ██║██╔══╝  ╚██╗ ██╔╝
+    ██║      ██║   ██║  ██║███████╗╚███╔███╔╝    ██████╔╝███████╗ ╚████╔╝ 
+    ╚═╝      ╚═╝   ╚═╝  ╚═╝╚══════╝ ╚══╝╚══╝     ╚═════╝ ╚══════╝  ╚═══╝  
+</pre>
 
 A streamlined, secure containerized development environment optimized for Claude Code with DNS-based domain filtering and comprehensive development tools.
 
