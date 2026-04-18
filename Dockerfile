@@ -60,6 +60,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     vim \
     nano \
+    tmux \
+    htop \
     # Development tools
     python3 \
     python3-pip \
@@ -68,6 +70,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zsh \
     fzf \
     build-essential \
+    postgresql-client \
+    redis-tools \
+    ripgrep \
     # Network tools
     dnsutils \
     iproute2 \
@@ -238,6 +243,8 @@ RUN apt-get update && apt-get install -y \
 ENV PLAYWRIGHT_BROWSERS_PATH=/usr/bin
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
+RUN npx playwright install-deps chromium
+
 # Configure development environment optimized for M4 Pro
 ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -273,7 +280,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/monitor-blocks.sh
 
 # Expose ports
-EXPOSE 22 3000 3001
+EXPOSE 22 3000 3001 6006
 
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

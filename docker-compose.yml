@@ -36,10 +36,20 @@ services:
     ports:
       # SSH access
       - "2222:22"
-      # Next.js development server
+      # development FE
       - "3000:3000"
-      # Next.js build server (if needed)
+      # Prod FE
+      - "3010:3010"
+      # Dev BE (if needed)
       - "3001:3001"
+      # Prod BE (if needed)
+      - "3002:3002"
+      # storybook
+      - "6006:6006"
+      # Mailpit Web Interface
+      # - "54324:54324" 
+      # Vite HMR
+      - "24679:24679"
     environment:
       # M4 Pro Performance Optimizations
       - NODE_OPTIONS=--max-old-space-size=8192 --experimental-wasm-modules
